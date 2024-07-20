@@ -40,6 +40,7 @@ SUPPORTED_DEVICES = {
 
     'RMC-M800S': 5,
     'RMC-M223S': 5,
+    'RMC-M227S': 5,
     'RMC-M92S': 5,
     'RMC-M92S-E': 5,
     'RMC-M40S': 5,
