@@ -13,6 +13,7 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL
 )
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -21,12 +22,12 @@ from homeassistant.helpers.event import async_track_time_interval
 from .btle import BTLEConnection
 
 DOMAIN = "ready4sky"
-SUPPORTED_DOMAINS = [
-    "water_heater",
-    "sensor",
-    "light",
-    "switch",
-    "fan"
+SUPPORTED_PLATFORMS: list[Platform] = [
+    Platform.WATER_HEATER,
+    Platform.SENSOR,
+    Platform.LIGHT,
+    Platform.SWITCH,
+    Platform.FAN
 ]
 SIGNAL_UPDATE_DATA = 'ready4skyupdate'
 
@@ -95,16 +96,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     async_track_time_interval(hass, hass.data[DOMAIN][config_entry.entry_id].update, scan_delta)
 
-    for component in SUPPORTED_DOMAINS:
-        hass.async_create_task(hass.config_entries.async_forward_entry_setup(config_entry, component))
+    await hass.async_create_task(hass.config_entries.async_forward_entry_setups(config_entry, SUPPORTED_PLATFORMS))
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     try:
-        for component in SUPPORTED_DOMAINS:
-            await hass.config_entries.async_forward_entry_unload(entry, component)
+        await hass.config_entries.async_unload_platforms(entry, SUPPORTED_PLATFORMS)
         hass.data[DOMAIN].pop(entry.entry_id)
     except ValueError:
         pass
